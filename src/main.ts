@@ -3,11 +3,13 @@ import cors from 'cors'
 import dotenv from 'dotenv'
 import bodyParser from 'body-parser'
 import MongoAPI from './Mongo.js'
+import jwt from 'jsonwebtoken'
 
 dotenv.config()
 
 const atlas = process.env.ATLAS_URI || '';
 const port = process.env.EXPRESS_PORT || 3001
+const tokenKey = process.env.TOKEN_KEY || 'test'
 
 const app = express()
 app.use(cors())
@@ -32,6 +34,130 @@ app.use((req, res, next) => {
 
 
 
+app.post('/admin/*', async (req, res, next) => {
+
+  try {
+    const token =
+      req.body.token || req.query.token || req.headers["x-access-token"];
+
+    if (!token) {
+      return res.status(403).send("A token is required for authentication");
+    }
+
+    const decoded = jwt.verify(token, tokenKey)
+    res.locals.accountId = decoded
+
+    if (await mongoApi.isAdmin(decoded as string)) {
+      next()
+    } else {
+      return res.status(401).send("Invalid Token");
+    }
+
+
+  } catch (err) {
+    return res.status(401).send("Invalid Token");
+  }
+})
+
+
+// app.get('/admin/*', async (req, res, next) => {
+
+//   try {
+//       const token =
+//           req.body.token || req.query.token || req.headers["x-access-token"];
+
+//       if (!token) {
+//           return res.status(403).send("A token is required for authentication");
+//       }
+
+//       const decoded = jwt.verify(token, tokenKey)
+//       res.locals.accountId = decoded
+//       if (await mongoApi.isAccountExist(decoded as string)) {
+//           next()
+//       } else {
+//           return res.status(401).send("Invalid Token");
+//       }
+
+
+//   } catch (err) {
+//       return res.status(401).send("Invalid Token");
+//   }
+// })
+
+// app.delete('/admin/*', async (req, res, next) => {
+
+//   try {
+//       const token =
+//           req.body.token || req.query.token || req.headers["x-access-token"];
+
+//       if (!token) {
+//           return res.status(403).send("A token is required for authentication");
+//       }
+
+//       const decoded = jwt.verify(token, tokenKey)
+//       res.locals.accountId = decoded
+//       if (await mongoApi.isAccountExist(decoded as string)) {
+//           next()
+//       } else {
+//           return res.status(401).send("Invalid Token");
+//       }
+
+
+//   } catch (err) {
+//       return res.status(401).send("Invalid Token");
+//   }
+// })
+
+// app.post('/admin/*', async (req, res, next) => {
+
+//   try {
+//       const token =
+//           req.body.token || req.query.token || req.headers["x-access-token"];
+
+//       if (!token) {
+//           return res.status(403).send("A token is required for authentication");
+//       }
+
+//       const decoded = jwt.verify(token, tokenKey)
+//       res.locals.accountId = decoded
+//       if (await mongoApi.isAccountExist(decoded as string)) {
+//           next()
+//       } else {
+//           return res.status(401).send("Invalid Token");
+//       }
+
+
+//   } catch (err) {
+//       return res.status(401).send("Invalid Token");
+//   }
+// })
+
+// app.put('/admin/*', async (req, res, next) => {
+
+//   try {
+//       const token =
+//           req.body.token || req.query.token || req.headers["x-access-token"];
+
+//       if (!token) {
+//           return res.status(403).send("A token is required for authentication");
+//       }
+
+//       const decoded = jwt.verify(token, tokenKey)
+//       res.locals.accountId = decoded
+//       if (await mongoApi.isAccountExist(decoded as string)) {
+//           next()
+//       } else {
+//           return res.status(401).send("Invalid Token");
+//       }
+
+
+//   } catch (err) {
+//       return res.status(401).send("Invalid Token");
+//   }
+// })
+
+
+
 
 
 // ----------------------- request --------------------------
@@ -50,8 +176,12 @@ app.post('/signin', async (req, res) => {
 
     if (result != null) {
 
+      // check password is correct or not
       if (result.password == password) {
-        res.status(200).send({ id: result._id })
+
+        // create token for auth
+        const token = jwt.sign(result._id, tokenKey)
+        res.status(200).send({ token: token })
       } else {
         res.status(400).send('Wrong password!')
       }
