@@ -37,7 +37,6 @@ export default class MongoAPI {
     async getAccount(email: string) {
         try {
             const account = await Account.findOne({ email: email }) as AccountData | null;
-            console.log("fetch account")
             return account;
 
         } catch (error) {
@@ -50,5 +49,50 @@ export default class MongoAPI {
 
 
     // ----------------------- protected request ---------------
+
+    async addAi(data: AiDetail) {
+        try {
+            return await AiData.create(data)
+
+        } catch (error) {
+            console.error('Error :', error);
+            return null
+        }
+    }
+
+    async updateAi(data: AiDetail) {
+        try {
+            return await AiData.findByIdAndUpdate(data._id, {
+                name: data.name,
+                icon_url: data.icon_url,
+                site_url: data.site_url,
+                type: data.type,
+                plans: data.plans,
+                description: data.description,
+                content: data.content,
+                modified_at: data.modified_at,
+                seo_description: data.seo_description
+            })
+
+        } catch (error) {
+            console.error('Error:', error);
+            return null
+        }
+    }
+
+    async deleteAi(id: string){
+        try {
+            return await AiData.findByIdAndDelete(id)
+
+        } catch (error) {
+            console.error('Error :', error);
+            return null
+        }
+    }
+
+
+
+    // ---------------------------- public request -------------------
+
 
 }

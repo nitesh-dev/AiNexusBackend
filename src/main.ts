@@ -4,6 +4,8 @@ import dotenv from 'dotenv'
 import bodyParser from 'body-parser'
 import MongoAPI from './Mongo.js'
 import jwt from 'jsonwebtoken'
+import { AiDetail } from './DataType.js'
+import { generateId, getCurrentTime } from './Utils.js'
 
 dotenv.config()
 
@@ -59,102 +61,79 @@ app.post('/admin/*', async (req, res, next) => {
   }
 })
 
+app.get('/admin/*', async (req, res, next) => {
 
-// app.get('/admin/*', async (req, res, next) => {
+  try {
+    const token =
+      req.body.token || req.query.token || req.headers["x-access-token"];
 
-//   try {
-//       const token =
-//           req.body.token || req.query.token || req.headers["x-access-token"];
+    if (!token) {
+      return res.status(403).send("A token is required for authentication");
+    }
 
-//       if (!token) {
-//           return res.status(403).send("A token is required for authentication");
-//       }
+    const decoded = jwt.verify(token, tokenKey)
+    res.locals.accountId = decoded
 
-//       const decoded = jwt.verify(token, tokenKey)
-//       res.locals.accountId = decoded
-//       if (await mongoApi.isAccountExist(decoded as string)) {
-//           next()
-//       } else {
-//           return res.status(401).send("Invalid Token");
-//       }
-
-
-//   } catch (err) {
-//       return res.status(401).send("Invalid Token");
-//   }
-// })
-
-// app.delete('/admin/*', async (req, res, next) => {
-
-//   try {
-//       const token =
-//           req.body.token || req.query.token || req.headers["x-access-token"];
-
-//       if (!token) {
-//           return res.status(403).send("A token is required for authentication");
-//       }
-
-//       const decoded = jwt.verify(token, tokenKey)
-//       res.locals.accountId = decoded
-//       if (await mongoApi.isAccountExist(decoded as string)) {
-//           next()
-//       } else {
-//           return res.status(401).send("Invalid Token");
-//       }
+    if (await mongoApi.isAdmin(decoded as string)) {
+      next()
+    } else {
+      return res.status(401).send("Invalid Token");
+    }
 
 
-//   } catch (err) {
-//       return res.status(401).send("Invalid Token");
-//   }
-// })
+  } catch (err) {
+    return res.status(401).send("Invalid Token");
+  }
+})
 
-// app.post('/admin/*', async (req, res, next) => {
+app.delete('/admin/*', async (req, res, next) => {
 
-//   try {
-//       const token =
-//           req.body.token || req.query.token || req.headers["x-access-token"];
+  try {
+    const token =
+      req.body.token || req.query.token || req.headers["x-access-token"];
 
-//       if (!token) {
-//           return res.status(403).send("A token is required for authentication");
-//       }
+    if (!token) {
+      return res.status(403).send("A token is required for authentication");
+    }
 
-//       const decoded = jwt.verify(token, tokenKey)
-//       res.locals.accountId = decoded
-//       if (await mongoApi.isAccountExist(decoded as string)) {
-//           next()
-//       } else {
-//           return res.status(401).send("Invalid Token");
-//       }
+    const decoded = jwt.verify(token, tokenKey)
+    res.locals.accountId = decoded
 
-
-//   } catch (err) {
-//       return res.status(401).send("Invalid Token");
-//   }
-// })
-
-// app.put('/admin/*', async (req, res, next) => {
-
-//   try {
-//       const token =
-//           req.body.token || req.query.token || req.headers["x-access-token"];
-
-//       if (!token) {
-//           return res.status(403).send("A token is required for authentication");
-//       }
-
-//       const decoded = jwt.verify(token, tokenKey)
-//       res.locals.accountId = decoded
-//       if (await mongoApi.isAccountExist(decoded as string)) {
-//           next()
-//       } else {
-//           return res.status(401).send("Invalid Token");
-//       }
+    if (await mongoApi.isAdmin(decoded as string)) {
+      next()
+    } else {
+      return res.status(401).send("Invalid Token");
+    }
 
 
-//   } catch (err) {
-//       return res.status(401).send("Invalid Token");
-//   }
-// })
+  } catch (err) {
+    return res.status(401).send("Invalid Token");
+  }
+})
+
+app.put('/admin/*', async (req, res, next) => {
+
+  try {
+    const token =
+      req.body.token || req.query.token || req.headers["x-access-token"];
+
+    if (!token) {
+      return res.status(403).send("A token is required for authentication");
+    }
+
+    const decoded = jwt.verify(token, tokenKey)
+    res.locals.accountId = decoded
+
+    if (await mongoApi.isAdmin(decoded as string)) {
+      next()
+    } else {
+      return res.status(401).send("Invalid Token");
+    }
+
+  } catch (err) {
+    return res.status(401).send("Invalid Token");
+  }
+})
 
 
 
@@ -198,6 +177,95 @@ app.post('/signin', async (req, res) => {
 
 // ------------------------ protected request -----------------------
 
+
+app.post('/admin/addAi', async (req, res) => {
+
+  console.log('add new ai requested')
+  try {
+    const data = req.body.data as AiDetail
+    const aiData: AiDetail = {
+      _id: generateId(),
+      name: data.name,
+      icon_url: data.icon_url,
+      site_url: data.site_url,
+      type: data.type,
+      plans: data.plans,
+      description: data.description,
+      content: data.content,
+      likes: 0,
+      views: 0,
+      created_at: getCurrentTime(),
+      modified_at: 0,
+      seo_description: data.seo_description
+    }
+
+    const result = await mongoApi.addAi(aiData)
+
+    if (result != null) {
+      res.status(200).send('Added successfully')
+    } else {
+      res.status(400).send('Bad Request')
+    }
+
+
+  } catch (error) {
+    console.log(error)
+    res.status(400).send('Bad Request')
+  }
+})
+
+
+app.delete('/admin/delete/:id', async (req, res) => {
+  console.log('delete ai requested')
+  try {
+    const id = req.params.id
+    const result = await mongoApi.deleteAi(id)
+
+    if (result != null) {
+      res.status(200).send('Deleted successfully')
+    } else {
+      res.status(400).send('Bad Request')
+    }
+
+  } catch (error) {
+    console.log(error)
+    res.status(400).send('Bad Request')
+  }
+})
+
+
+app.put('/admin/update', async (req, res) => {
+  console.log('update ai requested')
+  try {
+    const data = req.body.data as AiDetail
+    const aiData: AiDetail = {
+      _id: data._id,
+      name: data.name,
+      icon_url: data.icon_url,
+      site_url: data.site_url,
+      type: data.type,
+      plans: data.plans,
+      description: data.description,
+      content: data.content,
+      likes: 0,
+      views: 0,
+      created_at: 0,
+      modified_at: getCurrentTime(),
+      seo_description: data.seo_description
+    }
+    const result = await mongoApi.updateAi(aiData)
+
+    if (result != null) {
+      res.status(200).send('Updated successfully')
+    } else {
+      res.status(400).send('Bad Request')
+    }
+
+  } catch (error) {
+    console.log(error)
+    res.status(400).send('Bad Request')
+  }
+})
 
 
 
