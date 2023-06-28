@@ -21,3 +21,16 @@ export interface AccountData{
     email: string,
     password: string
 }
+
+export interface DashboardAiDetail{
+    _id: string,
+    name: string,
+    icon_url: string,
+    site_url: string,
+    type: string,
+    plans: string,
+    likes: number,
+    views: number,
+    created_at: number,
+    modified_at: number
+}

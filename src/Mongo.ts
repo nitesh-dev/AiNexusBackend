@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import { Account, AiData } from "./Model.js";
-import { AiDetail, AccountData } from "./DataType.js";
+import { AiDetail, AccountData, DashboardAiDetail } from "./DataType.js";
 
 export default class MongoAPI {
 
@@ -14,7 +14,7 @@ export default class MongoAPI {
             .catch((error) => {
                 console.error('Error connecting to MongoDB:', error);
             });
- 
+
         return isConnected
     }
 
@@ -50,12 +50,23 @@ export default class MongoAPI {
 
     // ----------------------- protected request ---------------
 
+    async dashboard(pageNumber: number, pageSize: number) {
+        try {
+            const skipCount = (pageNumber - 1) * pageSize;
+            return await AiData.find().select('_id name icon_url site_url type plans likes views created_at modified_at').sort({ views: -1 }).skip(skipCount).limit(pageSize) as Array<DashboardAiDetail>
+
+        } catch (error) {
+            console.log(error)
+            return null
+        }
+    }
+
     async addAi(data: AiDetail) {
         try {
             return await AiData.create(data)
 
         } catch (error) {
-            console.error('Error :', error);
+            console.error(error);
             return null
         }
     }
@@ -80,12 +91,12 @@ export default class MongoAPI {
         }
     }
 
-    async deleteAi(id: string){
+    async deleteAi(id: string) {
         try {
             return await AiData.findByIdAndDelete(id)
 
         } catch (error) {
-            console.error('Error :', error);
+            console.error(error);
             return null
         }
     }

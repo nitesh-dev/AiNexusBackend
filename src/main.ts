@@ -175,8 +175,32 @@ app.post('/signin', async (req, res) => {
   }
 })
 
+
+
 // ------------------------ protected request -----------------------
 
+app.get('/admin/dashboard/:page_num', async (req, res) => {
+  console.log('dashboard data requested')
+  try {
+    const pageNum = parseInt(req.params.page_num) 
+    const result = await mongoApi.dashboard(pageNum, 50)
+
+    if (result != null) {
+      res.status(200).send(result)
+    } else {
+      res.status(400).send('Bad Request')
+    }
+
+
+  } catch (error) {
+    console.log(error)
+    res.status(400).send('Bad Request')
+  }
+})
+
+app.get('/admin/dashboard/search', async (req, res) => {
+  
+})
 
 app.post('/admin/addAi', async (req, res) => {
 
