@@ -14,7 +14,7 @@ export default class MongoAPI {
             .catch((error) => {
                 console.error('Error connecting to MongoDB:', error);
             });
-
+ 
         return isConnected
     }
 
@@ -32,4 +32,23 @@ export default class MongoAPI {
 
         return false
     }
+
+
+    async getAccount(email: string) {
+        try {
+            const account = await Account.findOne({ email: email }) as AccountData | null;
+            console.log("fetch account")
+            return account;
+
+        } catch (error) {
+            console.error('Error in account:', error);
+            return null
+        }
+    }
+
+
+
+
+    // ----------------------- protected request ---------------
+
 }

@@ -41,6 +41,31 @@ app.get('/', (req, res) => {
 })
 
 
+app.post('/signin', async (req, res) => {
+  try {
+    const email = req.body.email as string
+    const password = req.body.password as string
+
+    const result = await mongoApi.getAccount(email)
+
+    if (result != null) {
+
+      if (result.password == password) {
+        res.status(200).send({ id: result._id })
+      } else {
+        res.status(400).send('Wrong password!')
+      }
+
+    } else {
+      res.status(400).send('No account found with this email')
+    }
+
+  } catch (error) {
+    console.log(error)
+    res.status(400).send('Bad Request')
+  }
+})
+
 // ------------------------ protected request -----------------------
 
 
