@@ -4,18 +4,18 @@ import mongoose from 'mongoose';
 const aiDataSchema = new Schema({
 
     _id: { type: String, required: true },
-    name: { type: String, required: true },
-    icon_url: { type: String, required: true },
-    site_url: { type: String, required: true },
-    type: { type: String, required: true },
-    plans: { type: String, required: true },
-    description: { type: String, required: true },
-    content: { type: String, required: true },
-    likes: { type: Number, required: true },
-    views: { type: Number, required: true },
-    created_at: { type: Number, required: true },
-    modified_at: { type: Number, required: true },
-    seo_description: { type: String, required: true },
+    name: { type: String, required: false },
+    icon_url: { type: String, required: false },
+    site_url: { type: String, required: false },
+    type: { type: String, required: false },
+    plans: { type: String, required: false },
+    description: { type: String, required: false },
+    content: { type: String, required: false },
+    likes: { type: Number, required: false },
+    views: { type: Number, required: false },
+    created_at: { type: Number, required: false },
+    modified_at: { type: Number, required: false },
+    seo_description: { type: String, required: false },
 
 });
 

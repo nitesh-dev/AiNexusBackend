@@ -4,7 +4,7 @@ import dotenv from 'dotenv'
 import bodyParser from 'body-parser'
 import MongoAPI from './Mongo.js'
 import jwt from 'jsonwebtoken'
-import { AiDetail } from './DataType.js'
+import { AiDetail, AiUploadDetail } from './DataType.js'
 import { generateId, getCurrentTime } from './Utils.js'
 
 dotenv.config()
@@ -179,11 +179,10 @@ app.post('/signin', async (req, res) => {
 
 // ------------------------ protected request -----------------------
 
-app.get('/admin/dashboard/:page_num', async (req, res) => {
+app.get('/admin/dashboard', async (req, res) => {
   console.log('dashboard data requested')
   try {
-    const pageNum = parseInt(req.params.page_num) 
-    const result = await mongoApi.dashboard(pageNum, 50)
+    const result = await mongoApi.dashboard()
 
     if (result != null) {
       res.status(200).send(result)
@@ -198,15 +197,12 @@ app.get('/admin/dashboard/:page_num', async (req, res) => {
   }
 })
 
-app.get('/admin/dashboard/search', async (req, res) => {
-  
-})
 
-app.post('/admin/addAi', async (req, res) => {
+app.post('/admin/add', async (req, res) => {
 
   console.log('add new ai requested')
   try {
-    const data = req.body.data as AiDetail
+    const data = req.body.data as AiUploadDetail
     const aiData: AiDetail = {
       _id: generateId(),
       name: data.name,
@@ -226,7 +222,7 @@ app.post('/admin/addAi', async (req, res) => {
     const result = await mongoApi.addAi(aiData)
 
     if (result != null) {
-      res.status(200).send('Added successfully')
+      res.status(200).send({status: 'success'})
     } else {
       res.status(400).send('Bad Request')
     }

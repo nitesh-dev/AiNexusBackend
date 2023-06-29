@@ -34,3 +34,20 @@ export interface DashboardAiDetail{
     created_at: number,
     modified_at: number
 }
+
+export interface AiUploadDetail{
+
+    _id: string,
+    name: string,
+    icon_url: string,
+    site_url: string,
+    type: string,
+    plans: string,
+    description: string,
+    content: string,
+    seo_description: string
+}
+
+export interface DashboardData{
+    aiDetailList: Array<DashboardAiDetail>
+}

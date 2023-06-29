@@ -11,5 +11,5 @@ export function generateId(max = 15){
 
 
 export function getCurrentTime(){
-    return new Date().getUTCMilliseconds()
+    return new Date().getTime()
 }

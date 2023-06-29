@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import { Account, AiData } from "./Model.js";
-import { AiDetail, AccountData, DashboardAiDetail } from "./DataType.js";
+import { AiDetail, AccountData, DashboardAiDetail, DashboardData } from "./DataType.js";
 
 export default class MongoAPI {
 
@@ -50,16 +50,50 @@ export default class MongoAPI {
 
     // ----------------------- protected request ---------------
 
-    async dashboard(pageNumber: number, pageSize: number) {
+    async dashboard() {
         try {
-            const skipCount = (pageNumber - 1) * pageSize;
-            return await AiData.find().select('_id name icon_url site_url type plans likes views created_at modified_at').sort({ views: -1 }).skip(skipCount).limit(pageSize) as Array<DashboardAiDetail>
+            const dashData: DashboardData = {
+                aiDetailList: await AiData.find().select('_id name icon_url site_url type plans likes views created_at modified_at').sort({ views: -1 }) as Array<DashboardAiDetail>
+            }
+            return dashData
+        } catch (error) {
+            console.log(error)
+            return null
+        }
+    }
+
+
+    // async dashboard(pageNumber: number, pageSize: number) {
+    //     try {
+    //         const skipCount = (pageNumber - 1) * pageSize;
+    //         return await AiData.find().select('_id name icon_url site_url type plans likes views created_at modified_at').sort({ views: -1 }).skip(skipCount).limit(pageSize) as Array<DashboardAiDetail>
+
+    //     } catch (error) {
+    //         console.log(error)
+    //         return null
+    //     }
+    // }
+
+    async dashboardSearch(search: string, pageSize: number, sortBy: string) {
+
+        let sort = {}
+        if(sortBy == 'view'){
+            sort = {views: -1}
+        }else if(sortBy == 'name'){
+            sort = {name: -1}
+        }else{
+            sort = {likes: -1}
+        }
+
+        try {
+            return await AiData.find().select('_id name icon_url site_url type plans likes views created_at modified_at').sort(sort).limit(pageSize) as Array<DashboardAiDetail>
 
         } catch (error) {
             console.log(error)
             return null
         }
     }
+
 
     async addAi(data: AiDetail) {
         try {
