@@ -197,6 +197,25 @@ app.get('/admin/dashboard', async (req, res) => {
   }
 })
 
+app.get('/admin/ai/:id', async (req, res) => {
+  console.log('ai data requested')
+  try {
+    const result = await mongoApi.getAiData(req.params.id)
+
+    if (result != null) {
+      res.status(200).send(result)
+    } else {
+      res.status(400).send('Bad Request')
+    }
+
+
+  } catch (error) {
+    console.log(error)
+    res.status(400).send('Bad Request')
+  }
+})
+
+
 
 app.post('/admin/add', async (req, res) => {
 

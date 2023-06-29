@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import { Account, AiData } from "./Model.js";
-import { AiDetail, AccountData, DashboardAiDetail, DashboardData } from "./DataType.js";
+import { AiDetail, AccountData, DashboardAiDetail, DashboardData, AiUploadDetail } from "./DataType.js";
 
 export default class MongoAPI {
 
@@ -99,6 +99,15 @@ export default class MongoAPI {
         try {
             return await AiData.create(data)
 
+        } catch (error) {
+            console.error(error);
+            return null
+        }
+    }
+
+    async getAiData(id: string) {
+        try {
+            return await AiData.findById(id).select('_id name icon_url site_url type plans description content seo_description') as AiUploadDetail | null
         } catch (error) {
             console.error(error);
             return null
