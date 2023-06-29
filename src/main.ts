@@ -222,7 +222,7 @@ app.post('/admin/add', async (req, res) => {
     const result = await mongoApi.addAi(aiData)
 
     if (result != null) {
-      res.status(200).send({status: 'success'})
+      res.status(200).send({ status: 'success' })
     } else {
       res.status(400).send('Bad Request')
     }
