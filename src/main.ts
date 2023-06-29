@@ -276,7 +276,7 @@ app.delete('/admin/delete/:id', async (req, res) => {
 app.put('/admin/update', async (req, res) => {
   console.log('update ai requested')
   try {
-    const data = req.body.data as AiDetail
+    const data = req.body.data as AiUploadDetail
     const aiData: AiDetail = {
       _id: data._id,
       name: data.name,
